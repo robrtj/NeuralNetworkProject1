@@ -70,15 +70,20 @@ public class Main {
         String chosen = in.next().toUpperCase();
         NeuronProperties np = new NeuronProperties(TransferFunctionType.valueOf(chosen), bias);
 
-        //learning & momentum ratios setting
+        //Setting learning ratio, momentum ratio, max iterations
         System.out.println("Set learning ratio:");
         Double learningRatio = in.nextDouble();
 
         System.out.println("Set momentum ratio:");
         Double momentumRatio = in.nextDouble();
+
+        System.out.println("Set max iterations:");
+        int maxIterations = in.nextInt();
+
         MomentumBackpropagation momentumBackpropagation = new MomentumBackpropagation();
         momentumBackpropagation.setLearningRate(learningRatio);
         momentumBackpropagation.setMomentum(momentumRatio);
+        momentumBackpropagation.setMaxIterations(maxIterations);
 
         //creating network
         NeuralNetwork nn = new MultiLayerPerceptron(neuronsInLayers, np);
