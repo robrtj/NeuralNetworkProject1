@@ -51,7 +51,22 @@ public class Main {
             }
         }
 
-        NeuronProperties np = new NeuronProperties(TransferFunctionType.LINEAR, bias);
+        //add activation function
+        System.out.println("Choose Activation function:\n" +
+                            "0:\tLINEAR\n" +
+                            "1:\tRAMP\n" +
+                            "2:\tSTEP\n" +
+                            "3:\tSIGMOID\n" +
+                            "4:\tTANH\n" +
+                            "5:\tGAUSSIAN\n" +
+                            "6:\tTRAPEZOID\n" +
+                            "7:\tSGN\n" +
+                            "8:\tSIN\n" +
+                            "9:\tLOG\n"
+            );
+        String chosen = in.next().toUpperCase();
+
+        NeuronProperties np = new NeuronProperties(TransferFunctionType.valueOf(chosen), bias);
         NeuralNetwork nn = new MultiLayerPerceptron(neuronsInLayers, np);
     }
 }
