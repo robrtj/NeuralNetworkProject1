@@ -1,32 +1,26 @@
 package pl.edu.pw.mini.bms2;
 
 import au.com.bytecode.opencsv.CSVReader;
-import org.neuroph.core.Layer;
 import org.neuroph.core.NeuralNetwork;
-import org.neuroph.core.Neuron;
 import org.neuroph.core.data.DataSet;
-import org.neuroph.core.data.DataSetRow;
 import org.neuroph.nnet.MultiLayerPerceptron;
-import org.neuroph.nnet.comp.neuron.BiasNeuron;
 import org.neuroph.nnet.learning.MomentumBackpropagation;
 import org.neuroph.util.NeuronProperties;
 import org.neuroph.util.TransferFunctionType;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.DoubleSummaryStatistics;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class Main {
+
+    private static Scanner in;
 
     public static void main(String[] args) {
         int hiddenLayers, inputNeurons;
         List<Integer> neuronsInLayers = new ArrayList<Integer>();
-        Scanner in = new Scanner(System.in);
+        in = new Scanner(System.in);
 
         System.out.println("Number of input neurons");
         inputNeurons = in.nextInt();
@@ -99,16 +93,23 @@ public class Main {
         );
         int problemType = in.nextInt();
 
-        System.out.println("Type location of training set file:\n");
-        String trainingSetFilePath = in.next();
-        DataSet traingSet = CreateTrainingSet(trainingSetFilePath, problemType);
+        DataSet traingSet = LoadTrainingSet(problemType);
 
         //creating network
         NeuralNetwork nn = new MultiLayerPerceptron(neuronsInLayers, np);
-        nn.setLearningRule(momentumBackpropagation);
+        //nn.setLearningRule(momentumBackpropagation);
+
+        //learn
+        nn.learn(traingSet, momentumBackpropagation);
+
+        //after learning test network
+        TestNetwork(nn);
     }
 
-    private static DataSet CreateTrainingSet(String trainingSetFilePath, int problemType) {
+    private static DataSet LoadTrainingSet(int problemType) {
+        System.out.println("Type location of training set file:\n");
+        String trainingSetFilePath = in.next();
+
         DataSet trainingSet =  new DataSet(problemType + 1, 1);
 
         CSVReader reader = null;
@@ -137,5 +138,36 @@ public class Main {
         }
 
         return trainingSet;
+    }
+
+    private static void TestNetwork(NeuralNetwork nnet) {
+        System.out.println("Type location of test set file:\n");
+        String testSetFilePath = in.next();
+
+        CSVReader reader = null;
+        try {
+            reader = new CSVReader(new FileReader(testSetFilePath));
+            String [] nextLine;
+
+            //read headers
+            System.out.println(reader.readNext().toString());
+            while ((nextLine = reader.readNext()) != null) {
+                int length = nextLine.length;
+                double[] input = new double[length];
+
+                for (int i = 0; i < length; i++) {
+                    input[i] = Double.parseDouble(nextLine[i]);
+                }
+                nnet.setInput(input);
+                nnet.calculate();
+                double[ ] networkOutput = nnet.getOutput();
+                System.out.print("Input: " + Arrays.toString(input));
+                System.out.println(" Output: " + Arrays.toString(networkOutput) );
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
