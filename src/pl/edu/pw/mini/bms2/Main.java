@@ -5,10 +5,12 @@ import org.neuroph.core.NeuralNetwork;
 import org.neuroph.core.Neuron;
 import org.neuroph.nnet.MultiLayerPerceptron;
 import org.neuroph.nnet.comp.neuron.BiasNeuron;
+import org.neuroph.nnet.learning.MomentumBackpropagation;
 import org.neuroph.util.NeuronProperties;
 import org.neuroph.util.TransferFunctionType;
 
 import java.util.ArrayList;
+import java.util.DoubleSummaryStatistics;
 import java.util.List;
 import java.util.Scanner;
 
@@ -34,6 +36,7 @@ public class Main {
         //add output layer
         neuronsInLayers.add(1);
 
+        //bias setting
         System.out.println("Use bias? (Y/N)");
         String biasString;
         boolean bias;
@@ -51,7 +54,7 @@ public class Main {
             }
         }
 
-        //add activation function
+        //activation function setting
         System.out.println("Choose Activation function:\n" +
                             "0:\tLINEAR\n" +
                             "1:\tRAMP\n" +
@@ -65,8 +68,16 @@ public class Main {
                             "9:\tLOG\n"
             );
         String chosen = in.next().toUpperCase();
-
         NeuronProperties np = new NeuronProperties(TransferFunctionType.valueOf(chosen), bias);
+
+        //momentum setting
+        System.out.println("Set momentum ratio:");
+        Double momentum = in.nextDouble();
+        MomentumBackpropagation momentumBackpropagation = new MomentumBackpropagation();
+        momentumBackpropagation.setMomentum(momentum);
+
+        //creating network
         NeuralNetwork nn = new MultiLayerPerceptron(neuronsInLayers, np);
+        nn.setLearningRule(momentumBackpropagation);
     }
 }
