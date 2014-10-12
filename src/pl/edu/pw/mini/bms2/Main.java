@@ -32,7 +32,7 @@ public class Main {
 //        System.out.println("Number of input neurons");
 //        inputNeurons = in.nextInt();
         neuronsInLayers.add(problemType + 1);
-        
+
         System.out.println("Number of hidden layers");
         hiddenLayers = in.nextInt();
 
@@ -108,7 +108,7 @@ public class Main {
     }
 
     private static DataSet LoadTrainingSet(int problemType) {
-        System.out.println("Type location of training set file:\n");
+        System.out.println("Type location of training set file:");
         String trainingSetFilePath = in.next();
 
         DataSet trainingSet =  new DataSet(problemType + 1, 1);
