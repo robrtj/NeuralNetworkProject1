@@ -22,9 +22,17 @@ public class Main {
         List<Integer> neuronsInLayers = new ArrayList<Integer>();
         in = new Scanner(System.in);
 
-        System.out.println("Number of input neurons");
-        inputNeurons = in.nextInt();
-        neuronsInLayers.add(inputNeurons);
+        //problem type setting
+        System.out.println("Choose problem type:\n" +
+                        "0:\tRegression\n" +
+                        "1:\tClustering"
+        );
+        int problemType = in.nextInt();
+
+//        System.out.println("Number of input neurons");
+//        inputNeurons = in.nextInt();
+        neuronsInLayers.add(problemType + 1);
+        
         System.out.println("Number of hidden layers");
         hiddenLayers = in.nextInt();
 
@@ -85,13 +93,6 @@ public class Main {
         momentumBackpropagation.setLearningRate(learningRatio);
         momentumBackpropagation.setMomentum(momentumRatio);
         momentumBackpropagation.setMaxIterations(maxIterations);
-
-        //problem type setting
-        System.out.println("Choose problem type:\n" +
-                        "0:\tRegression\n" +
-                        "1:\tClustering"
-        );
-        int problemType = in.nextInt();
 
         DataSet traingSet = LoadTrainingSet(problemType);
 
