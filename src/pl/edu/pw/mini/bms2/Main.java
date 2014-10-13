@@ -94,81 +94,90 @@ public class Main {
         momentumBackpropagation.setMomentum(momentumRatio);
         momentumBackpropagation.setMaxIterations(maxIterations);
 
-        DataSet traingSet = LoadTrainingSet(problemType);
+        DataSet trainingSet = LoadTrainingSet(problemType);
 
         //creating network
         NeuralNetwork nn = new MultiLayerPerceptron(neuronsInLayers, np);
-        //nn.setLearningRule(momentumBackpropagation);
+        nn.setLearningRule(momentumBackpropagation);
 
         //learn
-        nn.learn(traingSet, momentumBackpropagation);
+        nn.learn(trainingSet);//, momentumBackpropagation);
 
         //after learning test network
         TestNetwork(nn);
     }
 
     private static DataSet LoadTrainingSet(int problemType) {
-        System.out.println("Type location of training set file:");
-        String trainingSetFilePath = in.next();
+        boolean noFileError = true;
+        DataSet trainingSet = null;
 
-        DataSet trainingSet =  new DataSet(problemType + 1, 1);
+        while(noFileError) {
+            noFileError = false;
+            System.out.println("Type location of training set file:");
+            String trainingSetFilePath = in.next();
 
-        CSVReader reader = null;
-        try {
-            reader = new CSVReader(new FileReader(trainingSetFilePath));
-            String [] nextLine;
+            trainingSet = new DataSet(problemType + 1, 1);
 
-            //read headers
-            System.out.println(reader.readNext().toString());
-            while ((nextLine = reader.readNext()) != null) {
-                int length = nextLine.length;
-                double[] input = new double[length-1];
+            CSVReader reader = null;
+            try {
+                reader = new CSVReader(new FileReader(trainingSetFilePath));
+                String[] nextLine;
 
-                for (int i = 0; i < length-1; i++) {
-                    input[i] = Double.parseDouble(nextLine[i]);
+                //read headers
+                System.out.println(reader.readNext().toString());
+                while ((nextLine = reader.readNext()) != null) {
+                    int length = nextLine.length;
+                    double[] input = new double[length - 1];
+
+                    for (int i = 0; i < length - 1; i++) {
+                        input[i] = Double.parseDouble(nextLine[i]);
+                    }
+
+                    double[] output = new double[]{Double.parseDouble(nextLine[length - 1])};
+
+                    trainingSet.addRow(input, output);
                 }
-
-                double[] output = new double[]{Double.parseDouble(nextLine[length - 1])};
-
-                trainingSet.addRow(input, output);
+            } catch (Exception e) {
+                e.printStackTrace();
+                noFileError = true;
             }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
 
         return trainingSet;
     }
 
     private static void TestNetwork(NeuralNetwork nnet) {
-        System.out.println("Type location of test set file:\n");
-        String testSetFilePath = in.next();
+        boolean noFileError = true;
 
-        CSVReader reader = null;
-        try {
-            reader = new CSVReader(new FileReader(testSetFilePath));
-            String [] nextLine;
+        while(noFileError) {
+            noFileError = false;
+            System.out.println("Type location of test set file:\n");
+            String testSetFilePath = in.next();
 
-            //read headers
-            System.out.println(reader.readNext().toString());
-            while ((nextLine = reader.readNext()) != null) {
-                int length = nextLine.length;
-                double[] input = new double[length];
+            CSVReader reader = null;
+            try {
+                reader = new CSVReader(new FileReader(testSetFilePath));
+                String[] nextLine;
 
-                for (int i = 0; i < length; i++) {
-                    input[i] = Double.parseDouble(nextLine[i]);
+                //read headers
+                System.out.println(reader.readNext().toString());
+                while ((nextLine = reader.readNext()) != null) {
+                    int length = nextLine.length;
+                    double[] input = new double[length];
+
+                    for (int i = 0; i < length; i++) {
+                        input[i] = Double.parseDouble(nextLine[i]);
+                    }
+                    nnet.setInput(input);
+                    nnet.calculate();
+                    double[] networkOutput = nnet.getOutput();
+                    System.out.print("Input: " + Arrays.toString(input));
+                    System.out.println(" Output: " + Arrays.toString(networkOutput));
                 }
-                nnet.setInput(input);
-                nnet.calculate();
-                double[ ] networkOutput = nnet.getOutput();
-                System.out.print("Input: " + Arrays.toString(input));
-                System.out.println(" Output: " + Arrays.toString(networkOutput) );
+            } catch (Exception e) {
+                e.printStackTrace();
+                noFileError = true;
             }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 }
