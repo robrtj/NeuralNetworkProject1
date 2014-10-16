@@ -11,6 +11,7 @@ import org.neuroph.nnet.learning.MomentumBackpropagation;
 import org.neuroph.util.NeuralNetworkType;
 import org.neuroph.util.NeuronProperties;
 import org.neuroph.util.TransferFunctionType;
+import org.neuroph.util.data.norm.RangeNormalizer;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -21,6 +22,10 @@ import java.util.*;
 public class Main {
 
     private static Scanner in;
+    private static double[] maxIn, maxOut; // contains max values for in and out columns
+    private static double[] minIn, minOut; // contains min values for in and out columns
+    private static final double highLimit = 1.0;
+    private static final double lowLimit = 0.0;
 
     public static void main(String[] args) {
 //        int hiddenLayers, inputNeurons, outputNeurons;
@@ -120,21 +125,25 @@ public class Main {
 
         List<Integer> neuronsInLayers = new ArrayList<>();
         neuronsInLayers.add(1);
-        neuronsInLayers.add(10);
         neuronsInLayers.add(5);
         neuronsInLayers.add(1);
         NeuronProperties np = new NeuronProperties(TransferFunctionType.TANH, true);
         NeuralNetwork myNeutralNetwork = new MultiLayerPerceptron(neuronsInLayers, np);
 
         MomentumBackpropagation myMomentumBackpropagation = new MomentumBackpropagation();
-        myMomentumBackpropagation.setLearningRate(0.0005d);
-        myMomentumBackpropagation.setMomentum(0.9d);
-        myMomentumBackpropagation.setMaxIterations(1000);
+        myMomentumBackpropagation.setLearningRate(0.005d);
+        myMomentumBackpropagation.setMomentum(0.0d);
+        myMomentumBackpropagation.setMaxIterations(10000);
         myMomentumBackpropagation.setMaxError(0.001d);
         myNeutralNetwork.setLearningRule(myMomentumBackpropagation);
 
         DataSet trainingSet = LoadTrainingSet(0);
 
+        findMaxAndMinVectors(trainingSet);
+        System.out.println(trainingSet);
+        RangeNormalizer normalizer = new RangeNormalizer(0, 1);
+        normalizer.normalize(trainingSet);
+        System.out.println(trainingSet);
         myNeutralNetwork.learn(trainingSet);
         TestNetwork(myNeutralNetwork);
 
@@ -197,6 +206,7 @@ public class Main {
 
                     trainingSet.addRow(input, output);
                 }
+
             } catch (Exception e) {
                 e.printStackTrace();
                 noFileError = true;
@@ -234,9 +244,14 @@ public class Main {
                     for (int i = 0; i < length; i++) {
                         input[i] = Double.parseDouble(nextLine[i]);
                     }
-                    nnet.setInput(input);
+                    double[] normalizedInput = normalizeToRange(input, minIn, maxIn);
+                    nnet.setInput(normalizedInput);
                     nnet.calculate();
                     double[] networkOutput = nnet.getOutput();
+
+                    System.out.print("Input: " + Arrays.toString(normalizedInput));
+                    System.out.println("out: " + Arrays.toString(networkOutput));
+                    networkOutput = denormalizeToRange(networkOutput, minOut, maxOut);
                     System.out.print("Input: " + Arrays.toString(input));
 
 //                    writer.writeNext(Arrays.toString(input) + "," + Arrays.toString(networkOutput));
@@ -257,5 +272,101 @@ public class Main {
                 noFileError = true;
             }
         }
+    }
+
+    private static void findMaxAndMinVectors(DataSet dataSet) {
+        int inputSize = dataSet.getInputSize();
+        int outputSize = dataSet.getOutputSize();
+
+        maxIn = new double[inputSize];
+        minIn = new double[inputSize];
+
+        for(int i=0; i<inputSize; i++) {
+            maxIn[i] = Double.MIN_VALUE;
+            minIn[i] = Double.MAX_VALUE;
+        }
+
+        maxOut = new double[outputSize];
+        minOut = new double[outputSize];
+
+        for(int i=0; i<outputSize; i++) {
+            maxOut[i] = Double.MIN_VALUE;
+            minOut[i] = Double.MAX_VALUE;
+        }
+
+        for (DataSetRow dataSetRow : dataSet.getRows()) {
+            double[] input = dataSetRow.getInput();
+            for (int i = 0; i < inputSize; i++) {
+                if (input[i] > maxIn[i]) {
+                    maxIn[i] = input[i];
+                }
+                if (input[i] < minIn[i]) {
+                    minIn[i] = input[i];
+                }
+            }
+
+            double[] output = dataSetRow.getDesiredOutput();
+            for (int i = 0; i < outputSize; i++) {
+                if (output[i] > maxOut[i]) {
+                    maxOut[i] = output[i];
+                }
+                if (output[i] < minOut[i]) {
+                    minOut[i] = output[i];
+                }
+            }
+
+        }
+
+        System.out.println("min max");
+        for (int i = 0; i < minIn.length; i++) {
+            System.out.print(minIn[i] + ",");
+        }
+        System.out.println();
+        for (int i = 0; i < maxIn.length; i++) {
+            System.out.print(maxIn[i] + ",");
+        }
+        System.out.println();
+        for (int i = 0; i < minOut.length; i++) {
+            System.out.print(minOut[i] + ",");
+        }
+        System.out.println();
+        for (int i = 0; i < maxOut.length; i++) {
+            System.out.print(maxOut[i] + ",");
+        }
+        System.out.println();
+    }
+
+    private static void denormalize(DataSet dataSet) {
+        for (DataSetRow row : dataSet.getRows()) {
+            double[] denormalizedInput = denormalizeToRange(row.getInput(), minIn, maxIn);
+            row.setInput(denormalizedInput);
+
+            if (dataSet.isSupervised()) {
+                double[] denormalizedOutput = denormalizeToRange(row.getDesiredOutput(), minOut, maxOut);
+                row.setDesiredOutput(denormalizedOutput);
+            }
+
+        }
+
+    }
+
+    private static double[] denormalizeToRange(double[] vector, double[] min, double[] max) {
+        double[] denormalizedVector = new double[vector.length];
+
+        for (int i = 0; i < vector.length; i++) {
+            denormalizedVector[i] = ((vector[i] - lowLimit) * (max[i] - min[i]))/(highLimit - lowLimit) + min[i];
+        }
+
+        return denormalizedVector;
+    }
+
+    private static double[] normalizeToRange(double[] vector, double[] min, double[] max) {
+        double[] normalizedVector = new double[vector.length];
+
+        for (int i = 0; i < vector.length; i++) {
+            normalizedVector[i] = ((vector[i] - min[i]) / (max[i] - min[i])) * (highLimit - lowLimit) + lowLimit ;
+        }
+
+        return normalizedVector;
     }
 }
