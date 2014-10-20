@@ -6,6 +6,7 @@ import org.neuroph.core.data.DataSet;
 import org.neuroph.core.data.DataSetRow;
 import org.neuroph.nnet.MultiLayerPerceptron;
 import org.neuroph.nnet.learning.MomentumBackpropagation;
+import org.neuroph.util.NeuralNetworkType;
 import org.neuroph.util.NeuronProperties;
 import org.neuroph.util.TransferFunctionType;
 import org.neuroph.util.data.norm.RangeNormalizer;
@@ -25,31 +26,17 @@ public class Main {
     public static void main(String[] args) {
 
         NeutralNetworksManager neutralNetworksManager = new NeutralNetworksManager();
-        neutralNetworksManager.run();
+        NeuralNetwork myNeutralNetwork = neutralNetworksManager.run();
 
-//        List<Integer> neuronsInLayers = new ArrayList<>();
-//        neuronsInLayers.add(1);
-//        neuronsInLayers.add(5);
-//        neuronsInLayers.add(1);
-//        NeuronProperties np = new NeuronProperties(TransferFunctionType.TANH, true);
-//        NeuralNetwork myNeutralNetwork = new MultiLayerPerceptron(neuronsInLayers, np);
-//
-//        MomentumBackpropagation myMomentumBackpropagation = new MomentumBackpropagation();
-//        myMomentumBackpropagation.setLearningRate(0.005d);
-//        myMomentumBackpropagation.setMomentum(0.0d);
-//        myMomentumBackpropagation.setMaxIterations(10000);
-//        myMomentumBackpropagation.setMaxError(0.001d);
-//        myNeutralNetwork.setLearningRule(myMomentumBackpropagation);
-//
-//        DataSet trainingSet = LoadTrainingSet(0);
-//
-//        findMaxAndMinVectors(trainingSet);
-//        System.out.println(trainingSet);
-//        RangeNormalizer normalizer = new RangeNormalizer(0, 1);
-//        normalizer.normalize(trainingSet);
-//        System.out.println(trainingSet);
-//        myNeutralNetwork.learn(trainingSet);
-//        TestNetwork(myNeutralNetwork);
+        DataSet trainingSet = LoadTrainingSet(0);
+
+        findMaxAndMinVectors(trainingSet);
+        System.out.println(trainingSet);
+        RangeNormalizer normalizer = new RangeNormalizer(0, 1);
+        normalizer.normalize(trainingSet);
+        System.out.println(trainingSet);
+        myNeutralNetwork.learn(trainingSet);
+        TestNetwork(myNeutralNetwork);
     }
 
     private static DataSet LoadTrainingSet(int problemType) {
@@ -59,7 +46,7 @@ public class Main {
         while(noFileError) {
             noFileError = false;
             System.out.println("Type location of training set file:");
-            String trainingSetFilePath = "./tests/data.xsq.train.csv";//in.next();
+            String trainingSetFilePath = "./tests/data.xsq.train.csv";
             trainingSet = new DataSet(problemType + 1, 1);
 
             CSVReader reader = null;
@@ -98,7 +85,7 @@ public class Main {
 
         while(noFileError) {
             noFileError = false;
-            System.out.println("Type location of test set file:\n");
+            System.out.println("Type location of test set file:");
             String testSetFilePath = "tests/data.xsq.test.csv";
             CSVReader reader = null;
 
