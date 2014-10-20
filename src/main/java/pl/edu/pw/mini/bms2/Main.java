@@ -23,6 +23,10 @@ public class Main {
     private static final double lowLimit = 0.0;
 
     public static void main(String[] args) {
+
+        NeutralNetworksManager neutralNetworksManager = new NeutralNetworksManager();
+        neutralNetworksManager.run();
+
         List<Integer> neuronsInLayers = new ArrayList<>();
         neuronsInLayers.add(1);
         neuronsInLayers.add(5);
