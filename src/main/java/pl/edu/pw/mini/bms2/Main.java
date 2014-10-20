@@ -27,29 +27,29 @@ public class Main {
         NeutralNetworksManager neutralNetworksManager = new NeutralNetworksManager();
         neutralNetworksManager.run();
 
-        List<Integer> neuronsInLayers = new ArrayList<>();
-        neuronsInLayers.add(1);
-        neuronsInLayers.add(5);
-        neuronsInLayers.add(1);
-        NeuronProperties np = new NeuronProperties(TransferFunctionType.TANH, true);
-        NeuralNetwork myNeutralNetwork = new MultiLayerPerceptron(neuronsInLayers, np);
-
-        MomentumBackpropagation myMomentumBackpropagation = new MomentumBackpropagation();
-        myMomentumBackpropagation.setLearningRate(0.005d);
-        myMomentumBackpropagation.setMomentum(0.0d);
-        myMomentumBackpropagation.setMaxIterations(10000);
-        myMomentumBackpropagation.setMaxError(0.001d);
-        myNeutralNetwork.setLearningRule(myMomentumBackpropagation);
-
-        DataSet trainingSet = LoadTrainingSet(0);
-
-        findMaxAndMinVectors(trainingSet);
-        System.out.println(trainingSet);
-        RangeNormalizer normalizer = new RangeNormalizer(0, 1);
-        normalizer.normalize(trainingSet);
-        System.out.println(trainingSet);
-        myNeutralNetwork.learn(trainingSet);
-        TestNetwork(myNeutralNetwork);
+//        List<Integer> neuronsInLayers = new ArrayList<>();
+//        neuronsInLayers.add(1);
+//        neuronsInLayers.add(5);
+//        neuronsInLayers.add(1);
+//        NeuronProperties np = new NeuronProperties(TransferFunctionType.TANH, true);
+//        NeuralNetwork myNeutralNetwork = new MultiLayerPerceptron(neuronsInLayers, np);
+//
+//        MomentumBackpropagation myMomentumBackpropagation = new MomentumBackpropagation();
+//        myMomentumBackpropagation.setLearningRate(0.005d);
+//        myMomentumBackpropagation.setMomentum(0.0d);
+//        myMomentumBackpropagation.setMaxIterations(10000);
+//        myMomentumBackpropagation.setMaxError(0.001d);
+//        myNeutralNetwork.setLearningRule(myMomentumBackpropagation);
+//
+//        DataSet trainingSet = LoadTrainingSet(0);
+//
+//        findMaxAndMinVectors(trainingSet);
+//        System.out.println(trainingSet);
+//        RangeNormalizer normalizer = new RangeNormalizer(0, 1);
+//        normalizer.normalize(trainingSet);
+//        System.out.println(trainingSet);
+//        myNeutralNetwork.learn(trainingSet);
+//        TestNetwork(myNeutralNetwork);
     }
 
     private static DataSet LoadTrainingSet(int problemType) {
