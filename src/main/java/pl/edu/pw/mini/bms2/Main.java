@@ -23,101 +23,6 @@ public class Main {
     private static final double lowLimit = 0.0;
 
     public static void main(String[] args) {
-//        int hiddenLayers, inputNeurons, outputNeurons;
-//        List<Integer> neuronsInLayers = new ArrayList<>();
-//        in = new Scanner(System.in);
-//
-//        //problem type setting
-//        System.out.println("Choose problem type:\n" +
-//                        "0:\tRegression\n" +
-//                        "1:\tClustering"
-//        );
-//        int problemType = in.nextInt();
-//
-////        add input layer
-////        System.out.println("Number of input neurons");
-////        inputNeurons = in.nextInt();
-//        neuronsInLayers.add(problemType + 1);
-//
-//        System.out.println("Number of hidden layers");
-//        hiddenLayers = in.nextInt();
-//
-//        for (int i = 1; i <= hiddenLayers; i++) {
-//            System.out.println("Number of neurons in hidden layer " + i);
-//            int tmp = in.nextInt();
-//            neuronsInLayers.add(tmp);
-//        }
-//
-////        add output layer
-////        System.out.println("Number of output neurons");
-////        outputNeurons = in.nextInt();
-//        neuronsInLayers.add(1);
-//
-//        //bias setting
-//        System.out.println("Use bias? (Y/N)");
-//        String biasString;
-//        boolean bias;
-//
-//        while(true) {
-//            biasString = in.next();
-//            if (biasString.equals("Y") || biasString.equals("y")) {
-//                bias = true;
-//                break;
-//            } else if (biasString.equals("N") || biasString.equals("n"))  {
-//                bias = false;
-//                break;
-//            } else {
-//                System.out.println("Try again. (Y/N)");
-//            }
-//        }
-//
-//        //activation function setting
-//        System.out.println("Choose Activation function:\n" +
-//                            "0:\tLINEAR\n" +
-//                            "1:\tRAMP\n" +
-//                            "2:\tSTEP\n" +
-//                            "3:\tSIGMOID\n" +
-//                            "4:\tTANH\n" +
-//                            "5:\tGAUSSIAN\n" +
-//                            "6:\tTRAPEZOID\n" +
-//                            "7:\tSGN\n" +
-//                            "8:\tSIN\n" +
-//                            "9:\tLOG\n"
-//            );
-//        String chosen = in.next().toUpperCase();
-//        NeuronProperties np = new NeuronProperties(TransferFunctionType.valueOf(chosen), bias);
-//
-//        //Setting learning ratio, momentum ratio, max iterations
-//        System.out.println("Set learning ratio:");
-//        Double learningRatio = in.nextDouble();
-//
-//        System.out.println("Set momentum ratio:");
-//        Double momentumRatio = in.nextDouble();
-//
-//        System.out.println("Set max iterations:");
-//        int maxIterations = in.nextInt();
-//
-//        System.out.println("Set max error:");
-//        double maxError = in.nextDouble();
-//
-//        MomentumBackpropagation momentumBackpropagation = new MomentumBackpropagation();
-//        momentumBackpropagation.setLearningRate(learningRatio);
-//        momentumBackpropagation.setMomentum(momentumRatio);
-//        momentumBackpropagation.setMaxIterations(maxIterations);
-//        momentumBackpropagation.setMaxError(maxError);
-//
-//        DataSet trainingSet = LoadTrainingSet(problemType);
-//
-//        //creating network
-//        NeuralNetwork nn = new MultiLayerPerceptron(neuronsInLayers, np);
-//        nn.setLearningRule(momentumBackpropagation);
-//
-//        //learn
-//        nn.learn(trainingSet);
-//
-//        //after learning test network
-//        TestNetwork(nn);
-
         List<Integer> neuronsInLayers = new ArrayList<>();
         neuronsInLayers.add(1);
         neuronsInLayers.add(5);
@@ -141,32 +46,6 @@ public class Main {
         System.out.println(trainingSet);
         myNeutralNetwork.learn(trainingSet);
         TestNetwork(myNeutralNetwork);
-
-//        //NeuralNetwork test = new Perceptron(2, 1);
-//        List<Integer> layers = new ArrayList<>();
-//        //layers.add(1)
-//        NeuralNetwork test = new MultiLayerPerceptron(TransferFunctionType.TANH, 2, 3, 1);
-//        test.learn(trainingSet);
-//        TestNetwork(test);
-//        test = new MultiLayerPerceptron(TransferFunctionType.TANH, 2, 3, 1);
-//        DataSet dataSet = new DataSet(2, 1);
-//        dataSet.addRow(new DataSetRow(new double[]{0, 0}, new double[]{0}));
-//        dataSet.addRow(new DataSetRow(new double[]{0, 1}, new double[]{1}));
-//        dataSet.addRow(new DataSetRow(new double[]{1, 0}, new double[]{1}));
-//        dataSet.addRow(new DataSetRow(new double[]{1, 1}, new double[]{0}));
-//        test.learn(dataSet);
-//        test.setInput(0, 0);
-//        test.calculate();
-//        System.out.println("test:" + test.getOutput()[0]);
-//        test.setInput(0, 1);
-//        test.calculate();
-//        System.out.println("test:" + test.getOutput()[0]);
-//        test.setInput(1, 0);
-//        test.calculate();
-//        System.out.println("test:" + test.getOutput()[0]);
-//        test.setInput(1, 1);
-//        test.calculate();
-//        System.out.println("test:" + test.getOutput()[0]);
     }
 
     private static DataSet LoadTrainingSet(int problemType) {
@@ -222,7 +101,7 @@ public class Main {
             try {
                 reader = new CSVReader(new FileReader(testSetFilePath));
 
-                FileWriter fr = new FileWriter("tests/abc.csv");
+                FileWriter fr = new FileWriter("tests/abc.ans.csv");
 
                 String[] nextLine;
 
