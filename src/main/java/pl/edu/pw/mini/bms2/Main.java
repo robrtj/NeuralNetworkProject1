@@ -1,6 +1,7 @@
 package pl.edu.pw.mini.bms2;
 
 import au.com.bytecode.opencsv.CSVReader;
+import javafx.print.Collation;
 import org.neuroph.core.NeuralNetwork;
 import org.neuroph.core.data.DataSet;
 import org.neuroph.core.data.DataSetRow;
@@ -15,6 +16,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.*;
 
 public class Main {
@@ -34,7 +36,7 @@ public class Main {
 
         int problemType = neutralNetworksManager.getProblemType();
         if(problemType == 0){
-            DataSet trainingSet = LoadTrainingSet(1, 1);
+            DataSet trainingSet = Regression_LoadTrainingSet(1, 1);
             trainingSet.shuffle();  //Randomly permutes set
 
             findMaxAndMinVectors(trainingSet);
@@ -42,15 +44,23 @@ public class Main {
             normalizer.normalize(trainingSet);
 
             myNeutralNetwork.learn(trainingSet);
-            TestNetwork(myNeutralNetwork, problemType);
+            Regression_TestNetwork(myNeutralNetwork, 1);
 
         }else if(problemType == 1){
+            DataSet trainingSet = Classification_LoadTrainingSet(2, neutralNetworksManager.outputNeurons());
+            trainingSet.shuffle();  //Randomly permutes set
 
+            findMaxAndMinVectors(trainingSet);
+            RangeNormalizer normalizer = new RangeNormalizer(lowLimit, 1);
+            normalizer.normalize(trainingSet);
+
+            myNeutralNetwork.learn(trainingSet);
+            Classification_TestNetwork(myNeutralNetwork, neutralNetworksManager.outputNeurons());
         }
 
     }
 
-    private static DataSet LoadTrainingSet(int inputSize, int outputSize) {
+    private static DataSet Regression_LoadTrainingSet(int inputSize, int outputSize) {
         boolean noFileError = true;
         DataSet trainingSet = null;
 
@@ -97,7 +107,55 @@ public class Main {
         return trainingSet;
     }
 
-    private static void TestNetwork(NeuralNetwork nnet, int problemType) {
+    private static DataSet Classification_LoadTrainingSet(int inputSize, int outputSize) {
+        boolean noFileError = true;
+        DataSet trainingSet = null;
+
+        while(noFileError) {
+            noFileError = false;
+            System.out.println("Type location of training set file:");
+            String trainingSetFilePath = "./tests/data.train.csv"; //in.next();
+            trainingSet = new DataSet(inputSize, outputSize);
+
+            CSVReader reader = null;
+            try {
+                reader = new CSVReader(new FileReader(trainingSetFilePath));
+
+                String[] nextLine;
+
+                //read headers
+                nextLine = reader.readNext();
+                System.out.println(nextLine);
+                while ((nextLine = reader.readNext()) != null) {
+                    int length = nextLine.length;
+                    double[] input = new double[inputSize];
+
+                    for (int i = 0; i < inputSize; i++) {
+                        input[i] = Double.parseDouble(nextLine[i]);
+                    }
+
+                    double[] output = new double[outputSize];
+                    for(int i=0; i<outputSize; ++i){
+                        output[i] = 0;
+                    }
+                    int tmpOutput = Integer.parseInt(nextLine[inputSize]);
+                    output[tmpOutput-1] = 1;
+
+                    trainingSet.addRow(input, output);
+                }
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+                noFileError = false;
+            } catch (IOException e) {
+                e.printStackTrace();
+                noFileError = true;
+            }
+        }
+
+        return trainingSet;
+    }
+
+    private static void Regression_TestNetwork(NeuralNetwork nnet, int outputSize) {
         boolean noFileError = true;
 
         while(noFileError) {
@@ -146,6 +204,77 @@ public class Main {
                     fr.write(String.valueOf(networkOutput[0]) + "\n");
 
                     System.out.println(" Output: " + Arrays.toString(networkOutput));
+                }
+
+                fr.close();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+                noFileError = false;
+            } catch (IOException e) {
+                e.printStackTrace();
+                noFileError = true;
+            }
+        }
+    }
+
+    private static void Classification_TestNetwork(NeuralNetwork nnet, int outputSize) {
+        boolean noFileError = true;
+
+        while(noFileError) {
+            noFileError = false;
+            System.out.println("Type location of test set file:");
+            String testSetFilePath = "tests/data.test.csv";
+            CSVReader reader = null;
+
+            try {
+                reader = new CSVReader(new FileReader(testSetFilePath));
+
+                FileWriter fr = new FileWriter("tests/abc.ans.csv");
+
+                String[] nextLine;
+
+                //read headers
+                nextLine = reader.readNext();
+                System.out.println(nextLine.toString());
+                while ((nextLine = reader.readNext()) != null) {
+                    int length = nextLine.length;
+                    double[] input = new double[length];
+
+                    for (int i = 0; i < length; i++) {
+                        input[i] = Double.parseDouble(nextLine[i]);
+                    }
+                    double[] normalizedInput = normalizeToRange(input, minIn, maxIn);
+                    nnet.setInput(normalizedInput);
+                    nnet.calculate();
+                    double[] networkOutput = nnet.getOutput();
+
+                    double max = -Integer.MAX_VALUE;
+                    int output = 0;
+                    for(int i=0; i<networkOutput.length; ++i){
+                        if(max < networkOutput[i]){
+                            max = networkOutput[i];
+                            output = i+1;
+                        }
+                    }
+
+                    System.out.print("Input: " + Arrays.toString(normalizedInput));
+                    System.out.println("out: " + Arrays.toString(networkOutput));
+
+                    //networkOutput = denormalizeToRange(networkOutput, minOut, maxOut);
+
+                    System.out.print("Input: " + Arrays.toString(input));
+
+                    for (int i = 0; i < length; i++) {
+                        if(i>0) {
+                            fr.write(",");
+                        }
+                        fr.write(String.valueOf(input[i]));
+                    }
+                    fr.write(",");
+
+                    fr.write(String.valueOf(output) + "\n");
+
+                    System.out.println(" Output: " + output);
                 }
 
                 fr.close();

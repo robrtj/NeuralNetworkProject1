@@ -18,6 +18,7 @@ public class NeutralNetworksManager {
 
     private double lowLimit = 0.0d;
     private int problemType = 0;
+    private int outputNeurons = 0;
 
     public NeuralNetwork run(){
 
@@ -113,9 +114,9 @@ public class NeutralNetworksManager {
         }
         System.out.println("hiddenLayers: " + networkProperties.getProperty("hiddenLayers"));
 
-        neuronsInLayers.add(Integer.parseInt(
-                            networkProperties.getProperty("outputNeurons")));
-        System.out.println("outputNeurons: " + networkProperties.getProperty("outputNeurons"));
+        outputNeurons = Integer.parseInt(networkProperties.getProperty("outputNeurons"));
+        neuronsInLayers.add(outputNeurons);
+        System.out.println("outputNeurons: " + outputNeurons);
 
         momentumBackpropagation.setLearningRate(
                 Double.valueOf(networkProperties.getProperty("learningRate"))
@@ -149,5 +150,9 @@ public class NeutralNetworksManager {
 
     public int getProblemType() {
         return problemType;
+    }
+
+    public int outputNeurons() {
+        return outputNeurons;
     }
 }
