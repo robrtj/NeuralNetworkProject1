@@ -167,7 +167,7 @@ public class Main {
             try {
                 reader = new CSVReader(new FileReader(testSetFilePath));
 
-                FileWriter fr = new FileWriter("tests/abc.ans.csv");
+                FileWriter fr = new FileWriter("tests/reg_ans.csv");
 
                 String[] nextLine;
 
@@ -229,7 +229,7 @@ public class Main {
             try {
                 reader = new CSVReader(new FileReader(testSetFilePath));
 
-                FileWriter fr = new FileWriter("tests/abc.ans.csv");
+                FileWriter fr = new FileWriter("tests/cl_ans.csv");
 
                 String[] nextLine;
 
