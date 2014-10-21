@@ -32,31 +32,35 @@ public class Main {
 
         lowLimit = neutralNetworksManager.getLowLimit();
 
-        int problemInput = neutralNetworksManager.getProblemInput();
-        DataSet trainingSet = LoadTrainingSet(problemInput);
-        trainingSet.shuffle();  //Randomly permutes set
+        int problemType = neutralNetworksManager.getProblemType();
+        if(problemType == 0){
+            DataSet trainingSet = LoadTrainingSet(1, 1);
+            trainingSet.shuffle();  //Randomly permutes set
 
-        findMaxAndMinVectors(trainingSet);
-        System.out.println(trainingSet);
-        RangeNormalizer normalizer = new RangeNormalizer(lowLimit, 1);
-        normalizer.normalize(trainingSet);
-        System.out.println(trainingSet);
-        myNeutralNetwork.learn(trainingSet);
-        TestNetwork(myNeutralNetwork);
+            findMaxAndMinVectors(trainingSet);
+            RangeNormalizer normalizer = new RangeNormalizer(lowLimit, 1);
+            normalizer.normalize(trainingSet);
+
+            myNeutralNetwork.learn(trainingSet);
+            TestNetwork(myNeutralNetwork, problemType);
+
+        }else if(problemType == 1){
+
+        }
+
     }
 
-    private static DataSet LoadTrainingSet(int problemType) {
+    private static DataSet LoadTrainingSet(int inputSize, int outputSize) {
         boolean noFileError = true;
         DataSet trainingSet = null;
 
         while(noFileError) {
             noFileError = false;
             System.out.println("Type location of training set file:");
-            String trainingSetFilePath = "./tests/data.xsq.train.csv";
-            trainingSet = new DataSet(problemType, 1);
+            String trainingSetFilePath = "./tests/data.xsq.train.csv"; //in.next();
+            trainingSet = new DataSet(inputSize, outputSize);
 
             CSVReader reader = null;
-
             try {
                 reader = new CSVReader(new FileReader(trainingSetFilePath));
 
@@ -67,13 +71,17 @@ public class Main {
                 System.out.println(nextLine);
                 while ((nextLine = reader.readNext()) != null) {
                     int length = nextLine.length;
-                    double[] input = new double[length - 1];
+                    double[] input = new double[inputSize];
 
-                    for (int i = 0; i < length - 1; i++) {
+                    for (int i = 0; i < inputSize; i++) {
                         input[i] = Double.parseDouble(nextLine[i]);
                     }
 
-                    double[] output = new double[]{Double.parseDouble(nextLine[length - 1])};
+                    double[] output = new double[outputSize];
+
+                    for (int i = inputSize-1; i < inputSize+outputSize-1; i++) {
+                        output[i] = Double.parseDouble(nextLine[i+1]);
+                    }
 
                     trainingSet.addRow(input, output);
                 }
@@ -89,7 +97,7 @@ public class Main {
         return trainingSet;
     }
 
-    private static void TestNetwork(NeuralNetwork nnet) {
+    private static void TestNetwork(NeuralNetwork nnet, int problemType) {
         boolean noFileError = true;
 
         while(noFileError) {
@@ -122,10 +130,11 @@ public class Main {
 
                     System.out.print("Input: " + Arrays.toString(normalizedInput));
                     System.out.println("out: " + Arrays.toString(networkOutput));
+
                     networkOutput = denormalizeToRange(networkOutput, minOut, maxOut);
+
                     System.out.print("Input: " + Arrays.toString(input));
 
-//                    writer.writeNext(Arrays.toString(input) + "," + Arrays.toString(networkOutput));
                     for (int i = 0; i < length; i++) {
                         if(i>0) {
                             fr.write(",");
@@ -133,7 +142,9 @@ public class Main {
                         fr.write(String.valueOf(input[i]));
                     }
                     fr.write(",");
+
                     fr.write(String.valueOf(networkOutput[0]) + "\n");
+
                     System.out.println(" Output: " + Arrays.toString(networkOutput));
                 }
 

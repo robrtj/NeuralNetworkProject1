@@ -17,7 +17,7 @@ import java.util.*;
 public class NeutralNetworksManager {
 
     private double lowLimit = 0.0d;
-    private int problemInput = 0;
+    private int problemType = 0;
 
     public NeuralNetwork run(){
 
@@ -73,6 +73,9 @@ public class NeutralNetworksManager {
         System.out.println("Preparing MLP network with properties:");
         NeuronProperties np = new NeuronProperties();
 
+        problemType = Integer.parseInt(networkProperties.getProperty("problemType"));
+        System.out.println("problemType: " + networkProperties.getProperty("problemType"));
+
         np.setProperty("useBias", Boolean.valueOf(networkProperties.getProperty("bias")));
         System.out.println("bias: " + networkProperties.getProperty("bias"));
 
@@ -96,8 +99,6 @@ public class NeutralNetworksManager {
         neuronsInLayers.add(Integer.parseInt(
                 networkProperties.getProperty("inputNeurons")));
         System.out.println("inputNeurons: " + networkProperties.getProperty("inputNeurons"));
-
-        problemInput = neuronsInLayers.get(0);
 
         String[] items = networkProperties.getProperty("hiddenLayers")
                             .replaceAll("\\[", "").replaceAll("\\]", "").split(",");
@@ -146,7 +147,7 @@ public class NeutralNetworksManager {
         return lowLimit;
     }
 
-    public int getProblemInput() {
-        return problemInput;
+    public int getProblemType() {
+        return problemType;
     }
 }
