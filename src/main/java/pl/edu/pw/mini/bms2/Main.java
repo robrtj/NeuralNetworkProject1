@@ -21,12 +21,14 @@ public class Main {
     private static double[] maxIn, maxOut; // contains max values for in and out columns
     private static double[] minIn, minOut; // contains min values for in and out columns
     private static final double highLimit = 1.0;
-    private static final double lowLimit = 0.0;
+    private static double lowLimit = 0.0;
 
     public static void main(String[] args) {
 
         NeutralNetworksManager neutralNetworksManager = new NeutralNetworksManager();
         NeuralNetwork myNeutralNetwork = neutralNetworksManager.run();
+
+        lowLimit = neutralNetworksManager.getLowLimit();
 
         DataSet trainingSet = LoadTrainingSet(0);
 

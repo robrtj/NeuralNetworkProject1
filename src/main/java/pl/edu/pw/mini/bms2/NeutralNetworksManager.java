@@ -16,6 +16,8 @@ import java.util.*;
  */
 public class NeutralNetworksManager {
 
+    private double lowLimit = 0.0d;
+
     public NeuralNetwork run(){
 
         Scanner inScaner = new Scanner(System.in);
@@ -73,9 +75,21 @@ public class NeutralNetworksManager {
         np.setProperty("useBias", Boolean.valueOf(networkProperties.getProperty("bias")));
         System.out.println("bias: " + networkProperties.getProperty("bias"));
 
-        np.setProperty("transferFunction",
-                TransferFunctionType.valueOf((networkProperties.getProperty("transferFunction"))));
-        System.out.println("transferFunction: " + networkProperties.getProperty("transferFunction"));
+        String transferFunction = networkProperties.getProperty("transferFunction");
+        TransferFunctionType transferFunctionType = TransferFunctionType.valueOf(transferFunction);
+        np.setProperty("transferFunction", transferFunctionType);
+        System.out.println("transferFunction: " + transferFunction);
+
+        if(transferFunction == "TANH"
+                || transferFunction == "SGN"
+                ){
+            lowLimit = -1.0d;
+        }else if(transferFunction == "SIGMOID"
+                || transferFunction == "STEP"
+                || transferFunction == "RAMP"
+                ){
+            lowLimit = 0.0d;
+        }
 
         List<Integer> neuronsInLayers = new ArrayList<>();
         neuronsInLayers.add(Integer.parseInt(
@@ -123,5 +137,9 @@ public class NeutralNetworksManager {
         mlp.setLearningRule(momentumBackpropagation);
 
         return mlp;
+    }
+
+    public double getLowLimit() {
+        return lowLimit;
     }
 }
