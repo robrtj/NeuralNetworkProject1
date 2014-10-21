@@ -17,6 +17,7 @@ import java.util.*;
 public class NeutralNetworksManager {
 
     private double lowLimit = 0.0d;
+    private int problemInput = 0;
 
     public NeuralNetwork run(){
 
@@ -96,6 +97,8 @@ public class NeutralNetworksManager {
                 networkProperties.getProperty("inputNeurons")));
         System.out.println("inputNeurons: " + networkProperties.getProperty("inputNeurons"));
 
+        problemInput = neuronsInLayers.get(0);
+
         String[] items = networkProperties.getProperty("hiddenLayers")
                             .replaceAll("\\[", "").replaceAll("\\]", "").split(",");
 
@@ -141,5 +144,9 @@ public class NeutralNetworksManager {
 
     public double getLowLimit() {
         return lowLimit;
+    }
+
+    public int getProblemInput() {
+        return problemInput;
     }
 }

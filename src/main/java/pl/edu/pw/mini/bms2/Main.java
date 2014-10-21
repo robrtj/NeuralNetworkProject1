@@ -11,8 +11,10 @@ import org.neuroph.util.NeuronProperties;
 import org.neuroph.util.TransferFunctionType;
 import org.neuroph.util.data.norm.RangeNormalizer;
 
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
 
 public class Main {
@@ -30,11 +32,13 @@ public class Main {
 
         lowLimit = neutralNetworksManager.getLowLimit();
 
-        DataSet trainingSet = LoadTrainingSet(0);
+        int problemInput = neutralNetworksManager.getProblemInput();
+        DataSet trainingSet = LoadTrainingSet(problemInput);
+        trainingSet.shuffle();  //Randomly permutes set
 
         findMaxAndMinVectors(trainingSet);
         System.out.println(trainingSet);
-        RangeNormalizer normalizer = new RangeNormalizer(0, 1);
+        RangeNormalizer normalizer = new RangeNormalizer(lowLimit, 1);
         normalizer.normalize(trainingSet);
         System.out.println(trainingSet);
         myNeutralNetwork.learn(trainingSet);
@@ -49,9 +53,10 @@ public class Main {
             noFileError = false;
             System.out.println("Type location of training set file:");
             String trainingSetFilePath = "./tests/data.xsq.train.csv";
-            trainingSet = new DataSet(problemType + 1, 1);
+            trainingSet = new DataSet(problemType, 1);
 
             CSVReader reader = null;
+
             try {
                 reader = new CSVReader(new FileReader(trainingSetFilePath));
 
@@ -72,8 +77,10 @@ public class Main {
 
                     trainingSet.addRow(input, output);
                 }
-
-            } catch (Exception e) {
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+                noFileError = false;
+            } catch (IOException e) {
                 e.printStackTrace();
                 noFileError = true;
             }
@@ -131,7 +138,10 @@ public class Main {
                 }
 
                 fr.close();
-            } catch (Exception e) {
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+                noFileError = false;
+            } catch (IOException e) {
                 e.printStackTrace();
                 noFileError = true;
             }
