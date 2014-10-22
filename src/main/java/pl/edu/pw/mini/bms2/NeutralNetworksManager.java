@@ -19,6 +19,7 @@ public class NeutralNetworksManager {
     private double lowLimit = 0.0d;
     private int problemType = 0;
     private int outputNeurons = 0;
+    private int iterations = 1000;
 
     public NeuralNetwork run(){
 
@@ -138,6 +139,8 @@ public class NeutralNetworksManager {
         );
         System.out.println("maxError: " + networkProperties.getProperty("maxError"));
 
+        iterations = Integer.parseInt(networkProperties.getProperty("iterations"));
+
         mlp = new MultiLayerPerceptron(neuronsInLayers, np);
         mlp.setLearningRule(momentumBackpropagation);
 
@@ -155,4 +158,6 @@ public class NeutralNetworksManager {
     public int outputNeurons() {
         return outputNeurons;
     }
+
+    public int getIterations() { return iterations; }
 }

@@ -5,6 +5,7 @@ import javafx.print.Collation;
 import org.neuroph.core.NeuralNetwork;
 import org.neuroph.core.data.DataSet;
 import org.neuroph.core.data.DataSetRow;
+import org.neuroph.core.learning.LearningRule;
 import org.neuroph.nnet.MultiLayerPerceptron;
 import org.neuroph.nnet.learning.MomentumBackpropagation;
 import org.neuroph.util.NeuralNetworkType;
@@ -56,6 +57,22 @@ public class Main {
 
             myNeutralNetwork.learn(trainingSet);
             Classification_TestNetwork(myNeutralNetwork, neutralNetworksManager.outputNeurons());
+        } else if(problemType == 2) {
+            DataSet trainingSet = Regression_LoadTrainingSet(1, 1);
+            trainingSet.shuffle();  //Randomly permutes set
+
+            findMaxAndMinVectors(trainingSet);
+            RangeNormalizer normalizer = new RangeNormalizer(lowLimit, 1);
+            normalizer.normalize(trainingSet);
+
+            for (int i = 1; i < neutralNetworksManager.getIterations(); i++) {
+                myNeutralNetwork = neutralNetworksManager.run();
+                MomentumBackpropagation backpropagation = (MomentumBackpropagation) myNeutralNetwork.getLearningRule();
+                backpropagation.setMaxIterations(i);
+                myNeutralNetwork.setLearningRule(backpropagation);
+                myNeutralNetwork.learn(trainingSet);
+                Error_TestNetwork(myNeutralNetwork, 1);
+            }
         }
 
     }
@@ -286,6 +303,9 @@ public class Main {
                 noFileError = true;
             }
         }
+    }
+
+    private static void Error_TestNetwork(NeuralNetwork myNeutralNetwork, int i) {
     }
 
     private static void findMaxAndMinVectors(DataSet dataSet) {

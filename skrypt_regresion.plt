@@ -9,4 +9,4 @@ set term png
 set output "regressionPlot.png"
 
 
-plot 'tests/reg_ans.csv' using 1:2 notitle pt 5 ps 1, 'tests/data.xsq.train.csv' using 1:2 notitle with circles
+plot 'tests/data.xsq.train.csv' using 1:2 pt 6 ps 2, 'tests/reg_ans.csv' using 1:2 notitle pt 5 ps 1
