@@ -28,7 +28,7 @@ public class Main {
     private static final double highLimit = 1.0;
     private static double lowLimit = 0.0;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
 
         NeutralNetworksManager neutralNetworksManager = new NeutralNetworksManager();
         NeuralNetwork myNeutralNetwork = neutralNetworksManager.run();
@@ -60,18 +60,44 @@ public class Main {
         } else if(problemType == 2) {
             DataSet trainingSet = Regression_LoadTrainingSet(1, 1);
             trainingSet.shuffle();  //Randomly permutes set
-
+            DataSet testSet = new DataSet(trainingSet.getInputSize(), trainingSet.getOutputSize());
             findMaxAndMinVectors(trainingSet);
             RangeNormalizer normalizer = new RangeNormalizer(lowLimit, 1);
             normalizer.normalize(trainingSet);
 
-            for (int i = 1; i < neutralNetworksManager.getIterations(); i++) {
-                myNeutralNetwork = neutralNetworksManager.run();
-                MomentumBackpropagation backpropagation = (MomentumBackpropagation) myNeutralNetwork.getLearningRule();
-                backpropagation.setMaxIterations(i);
-                myNeutralNetwork.setLearningRule(backpropagation);
-                myNeutralNetwork.learn(trainingSet);
-                Error_TestNetwork(myNeutralNetwork, 1);
+            int trainingSetSize = trainingSet.getRows().size();
+
+            for (int i = trainingSetSize - 1; i > trainingSetSize / 2 ; i--) {
+                testSet.addRow(trainingSet.getRowAt(i));
+            }
+            for (int i = trainingSetSize - 1; i > trainingSetSize / 2 ; i--) {
+                trainingSet.removeRowAt(i);
+            }
+
+            FileWriter frTest = null;
+            FileWriter frTrain = null;
+            try {
+                frTest = new FileWriter("tests/err_test_ans.csv");
+                frTrain = new FileWriter("tests/err_train_ans.csv");
+
+                int iterations = neutralNetworksManager.getIterations();
+
+                Properties networkProperties = neutralNetworksManager.getNetworkProperties();
+                networkProperties.setProperty("maxIterations", String.valueOf(10));
+                neutralNetworksManager = new NeutralNetworksManager(networkProperties);
+                myNeutralNetwork = neutralNetworksManager.createMLPBasedOnProperties();
+                for (int i = 10; i <= iterations; i+=10) {
+                    System.out.println(i);
+
+                    myNeutralNetwork.learn(trainingSet);
+                    Error_TestNetwork(myNeutralNetwork, testSet, frTest, i);
+                    Error_TestNetwork(myNeutralNetwork, trainingSet, frTrain, i);
+                }
+            } catch (IOException e) {
+
+            } finally {
+                frTest.close();
+                frTrain.close();
             }
         }
 
@@ -305,7 +331,32 @@ public class Main {
         }
     }
 
-    private static void Error_TestNetwork(NeuralNetwork myNeutralNetwork, int i) {
+    private static void Error_TestNetwork(NeuralNetwork nnet, DataSet testSet, FileWriter fr, int iterations) throws IOException {
+
+        Double diff = 0.0;
+
+        for (DataSetRow row : testSet.getRows()) {
+
+            double[] input = row.getInput();
+            nnet.setInput(input);
+            nnet.calculate();
+            double[] networkOutput = nnet.getOutput();
+
+            //networkOutput = denormalizeToRange(networkOutput, minOut, maxOut);
+            //double[] desireOutputDenormalized = denormalizeToRange(row.getDesiredOutput(), minOut, maxOut);
+
+            diff += Math.abs(row.getDesiredOutput()[0] - networkOutput[0]);
+            //System.out.println(desireOutputDenormalized[0] + " " + networkOutput[0]);
+            //if(iterations == 99) {
+                //fr.write(desireOutputDenormalized[0] + " " + networkOutput[0] + "\n");
+            //}
+        }
+
+        diff /= testSet.getRows().size();
+        fr.write(String.valueOf(iterations));
+        fr.write(",");
+        fr.write(diff.toString());
+        fr.write("\n");
     }
 
     private static void findMaxAndMinVectors(DataSet dataSet) {

@@ -16,10 +16,24 @@ import java.util.*;
  */
 public class NeutralNetworksManager {
 
-    private double lowLimit = 0.0d;
-    private int problemType = 0;
-    private int outputNeurons = 0;
-    private int iterations = 1000;
+    private double lowLimit;
+    private int problemType;
+    private int outputNeurons;
+    private int iterations;
+    private Properties networkProperties;
+
+    public NeutralNetworksManager() {
+        lowLimit = 0.0d;
+        problemType = 0;
+        outputNeurons = 0;
+        iterations = 1000;
+        networkProperties = new Properties();
+    }
+
+    public NeutralNetworksManager(Properties prop) {
+        this();
+        networkProperties = prop;
+    }
 
     public NeuralNetwork run(){
 
@@ -30,7 +44,6 @@ public class NeutralNetworksManager {
 
         while(repeat){
 
-            Properties networkProperties = new Properties();
             InputStream propertyFilePath = null;
 
             System.out.println("Enter neutral network property file path:");
@@ -54,7 +67,7 @@ public class NeutralNetworksManager {
                 }
             }
 
-            neuralNetwork = createMLPBasedOnProperties(networkProperties);
+            neuralNetwork = createMLPBasedOnProperties();
 
             String answer = "";
             while(!answer.equals("Y") && !answer.equals("N")) {
@@ -67,7 +80,7 @@ public class NeutralNetworksManager {
         return neuralNetwork;
     }
 
-    private NeuralNetwork createMLPBasedOnProperties(Properties networkProperties) {
+    public NeuralNetwork createMLPBasedOnProperties() {
         MultiLayerPerceptron mlp = null;
 
         MomentumBackpropagation momentumBackpropagation = new MomentumBackpropagation();
@@ -129,9 +142,8 @@ public class NeutralNetworksManager {
         );
         System.out.println("momentum: " + networkProperties.getProperty("momentum"));
 
-        momentumBackpropagation.setMaxIterations(
-                Integer.parseInt(networkProperties.getProperty("maxIterations"))
-        );
+        iterations = Integer.parseInt(networkProperties.getProperty("maxIterations"));
+        momentumBackpropagation.setMaxIterations(iterations);
         System.out.println("maxIterations: " + networkProperties.getProperty("maxIterations"));
 
         momentumBackpropagation.setMaxError(
@@ -139,7 +151,6 @@ public class NeutralNetworksManager {
         );
         System.out.println("maxError: " + networkProperties.getProperty("maxError"));
 
-        iterations = Integer.parseInt(networkProperties.getProperty("iterations"));
 
         mlp = new MultiLayerPerceptron(neuronsInLayers, np);
         mlp.setLearningRule(momentumBackpropagation);
@@ -160,4 +171,6 @@ public class NeutralNetworksManager {
     }
 
     public int getIterations() { return iterations; }
+
+    public Properties getNetworkProperties() { return networkProperties; }
 }
